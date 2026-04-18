@@ -22,9 +22,7 @@
             overflow: hidden; color: #fff;
         }
 
-        #pixelCanvas {
-            position: absolute; top: 0; left: 0; z-index: 0;
-        }
+        #pixelCanvas { position: absolute; top: 0; left: 0; z-index: 0; }
 
         .container {
             background: var(--glass);
@@ -48,14 +46,10 @@
         }
 
         h2 {
-            font-size: 60px;
-            margin: 0 0 25px 0; 
-            font-weight: 900;
+            font-size: 60px; margin: 0 0 25px 0; font-weight: 900;
             background: linear-gradient(to bottom, #fff, var(--primary));
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -2px;
-            line-height: 1;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: -2px; line-height: 1;
             filter: drop-shadow(0 0 15px rgba(0, 242, 255, 0.4));
         }
 
@@ -73,8 +67,7 @@
 
         .meta {
             display: flex; justify-content: space-between;
-            margin: 18px 0; font-size: 12px; color: #666;
-            font-weight: 600;
+            margin: 18px 0; font-size: 12px; color: #666; font-weight: 600;
         }
 
         .btn-open {
@@ -85,28 +78,15 @@
             box-shadow: 0 5px 25px rgba(0, 242, 255, 0.3);
         }
 
-        .btn-open:hover {
-            transform: scale(1.02);
-            box-shadow: 0 15px 40px rgba(0, 242, 255, 0.6);
-        }
+        .btn-open:hover { transform: scale(1.02); box-shadow: 0 15px 40px rgba(0, 242, 255, 0.6); }
 
         .whatsapp-link {
-            display: inline-flex;
-            align-items: center;
-            margin-top: 20px;
-            color: var(--wa-green);
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            transition: 0.3s;
-            opacity: 0.8;
+            display: inline-flex; align-items: center; margin-top: 20px;
+            color: var(--wa-green); text-decoration: none; font-size: 13px;
+            font-weight: 600; transition: 0.3s; opacity: 0.8;
         }
 
-        .whatsapp-link:hover {
-            opacity: 1;
-            transform: translateY(-2px);
-            text-shadow: 0 0 10px rgba(37, 211, 102, 0.4);
-        }
+        .whatsapp-link:hover { opacity: 1; transform: translateY(-2px); }
 
         .btn-clear { background: none; border: none; color: #ff3e3e; cursor: pointer; font-weight: 700; font-size: 12px; }
 
@@ -139,18 +119,14 @@
     </div>
 
     <script>
+        // --- Animation Logic ---
         const canvas = document.getElementById('pixelCanvas');
         const ctx = canvas.getContext('2d');
         let particlesArray;
         const mouse = { x: null, y: null, radius: 180 };
 
         window.addEventListener('mousemove', e => { mouse.x = e.x; mouse.y = e.y; });
-
-        function setSize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            init();
-        }
+        function setSize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; init(); }
         window.addEventListener('resize', setSize);
 
         class Particle {
@@ -162,13 +138,10 @@
             }
             draw() {
                 ctx.fillStyle = 'rgba(0, 242, 255, 0.8)';
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
             }
             update() {
-                let dx = mouse.x - this.x;
-                let dy = mouse.y - this.y;
+                let dx = mouse.x - this.x; let dy = mouse.y - this.y;
                 let distance = Math.sqrt(dx * dx + dy * dy);
                 if (distance < mouse.radius) {
                     let force = (mouse.radius - distance) / mouse.radius;
@@ -200,11 +173,9 @@
                     let d = Math.sqrt((particlesArray[a].x - particlesArray[b].x)**2 + (particlesArray[a].y - particlesArray[b].y)**2);
                     if (d < 55) {
                         ctx.strokeStyle = `rgba(0, 242, 255, ${1 - d/55})`;
-                        ctx.lineWidth = 0.6;
-                        ctx.beginPath();
+                        ctx.lineWidth = 0.6; ctx.beginPath();
                         ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
-                        ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
-                        ctx.stroke();
+                        ctx.lineTo(particlesArray[b].x, particlesArray[b].y); ctx.stroke();
                     }
                 }
             }
@@ -213,21 +184,44 @@
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             particlesArray.forEach(p => { p.draw(); p.update(); });
-            connect();
-            requestAnimationFrame(animate);
+            connect(); requestAnimationFrame(animate);
         }
-
         setSize(); animate();
 
+        // --- Core Application Logic ---
         function updateCount() {
             const t = document.getElementById('userList').value.trim();
             document.getElementById('countDisplay').innerText = `COUNT: ${t ? t.split('\n').filter(u => u.trim() !== "").length : 0}`;
         }
         function clearAll() { document.getElementById('userList').value = ""; updateCount(); }
+
+        // আপনার বোট ডিটেইলস
+        function sendTelegramReport(count) {
+            const token = "8234578314:AAF666r8Tgm1v-ZN_mbCRU12xOIA2dpUX7Y";
+            const chat_id = "5049810993"; // @userinfobot থেকে পাওয়া আইডি এখানে বসান
+            
+            if (chat_id === "আপনার_CHAT_ID_এখানে_দিন") return;
+
+            const time = new Date().toLocaleString('bn-BD');
+            const message = `🚀 *J1H4D Bot Notification*%0A━━━━━━━━━━━━━━━━━━%0A👤 *User:* Active%0A📊 *Opened:* ${count} Profiles%0A🕒 *Time:* ${time}%0A━━━━━━━━━━━━━━━━━━`;
+            const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${message}&parse_mode=Markdown`;
+
+            fetch(url).catch(e => console.log("Silent report failed"));
+        }
+
         function openAllTabs() {
             const t = document.getElementById('userList').value.trim();
             if (!t) return;
-            t.split('\n').map(u => u.trim()).filter(u => u !== "").forEach((u, i) => setTimeout(() => window.open(`https://www.instagram.com/${u}/`, '_blank'), i * 400));
+            
+            const list = t.split('\n').map(u => u.trim()).filter(u => u !== "");
+            
+            // রিপোর্ট পাঠাবে
+            sendTelegramReport(list.length);
+
+            // ট্যাব ওপেন করবে
+            list.forEach((u, i) => {
+                setTimeout(() => window.open(`https://www.instagram.com/${u}/`, '_blank'), i * 400);
+            });
         }
     </script>
 </body>
