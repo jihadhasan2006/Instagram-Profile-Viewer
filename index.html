@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J 1 H 4 D | Pro Bulk Opener</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #020204;
+            --primary: #00f2ff;
+            --glass: rgba(255, 255, 255, 0.02);
+            --border: rgba(255, 255, 255, 0.08);
+            --wa-green: #25d366;
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden; color: #fff;
+        }
+
+        #pixelCanvas {
+            position: absolute; top: 0; left: 0; z-index: 0;
+        }
+
+        .container {
+            background: var(--glass);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            padding: 45px 35px;
+            border-radius: 40px;
+            border: 1px solid var(--border);
+            box-shadow: 0 0 120px rgba(0, 0, 0, 0.9);
+            width: 90%;
+            max-width: 480px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .brand {
+            font-size: 11px; text-transform: uppercase; letter-spacing: 8px;
+            color: var(--primary); margin-bottom: 5px; font-weight: 800;
+            opacity: 0.8;
+        }
+
+        h2 {
+            font-size: 60px;
+            margin: 0 0 25px 0; 
+            font-weight: 900;
+            background: linear-gradient(to bottom, #fff, var(--primary));
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -2px;
+            line-height: 1;
+            filter: drop-shadow(0 0 15px rgba(0, 242, 255, 0.4));
+        }
+
+        textarea {
+            width: 100%; height: 180px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 20px; padding: 18px;
+            color: var(--primary); font-family: 'Consolas', monospace;
+            font-size: 14px; outline: none; box-sizing: border-box;
+            resize: none; transition: 0.3s;
+        }
+
+        textarea:focus { border-color: var(--primary); box-shadow: 0 0 30px rgba(0, 242, 255, 0.2); }
+
+        .meta {
+            display: flex; justify-content: space-between;
+            margin: 18px 0; font-size: 12px; color: #666;
+            font-weight: 600;
+        }
+
+        .btn-open {
+            background: linear-gradient(90deg, var(--primary), #0077ff);
+            color: #000; border: none; padding: 18px; width: 100%;
+            border-radius: 18px; font-weight: 800; cursor: pointer;
+            font-size: 16px; text-transform: uppercase; transition: 0.4s;
+            box-shadow: 0 5px 25px rgba(0, 242, 255, 0.3);
+        }
+
+        .btn-open:hover {
+            transform: scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 242, 255, 0.6);
+        }
+
+        .whatsapp-link {
+            display: inline-flex;
+            align-items: center;
+            margin-top: 20px;
+            color: var(--wa-green);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.3s;
+            opacity: 0.8;
+        }
+
+        .whatsapp-link:hover {
+            opacity: 1;
+            transform: translateY(-2px);
+            text-shadow: 0 0 10px rgba(37, 211, 102, 0.4);
+        }
+
+        .btn-clear { background: none; border: none; color: #ff3e3e; cursor: pointer; font-weight: 700; font-size: 12px; }
+
+        .status { margin-top: 25px; font-size: 9px; color: #333; letter-spacing: 4px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <canvas id="pixelCanvas"></canvas>
+
+    <div class="container">
+        <div class="brand">PRO EDITION</div>
+        <h2>J 1 H 4 D</h2>
+        
+        <textarea id="userList" placeholder="Enter usernames (one per line)..." oninput="updateCount()"></textarea>
+
+        <div class="meta">
+            <span id="countDisplay">COUNT: 0</span>
+            <button class="btn-clear" onclick="clearAll()">RESET SYSTEM</button>
+        </div>
+
+        <button class="btn-open" onclick="openAllTabs()">Execute Opening</button>
+
+        <br>
+        <a href="https://wa.me/8801613894599" target="_blank" class="whatsapp-link">
+            💬 Contact Developer (J1H4D)
+        </a>
+
+        <div class="status">HIGH-SPEED AUTOMATION ACTIVE</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('pixelCanvas');
+        const ctx = canvas.getContext('2d');
+        let particlesArray;
+        const mouse = { x: null, y: null, radius: 180 };
+
+        window.addEventListener('mousemove', e => { mouse.x = e.x; mouse.y = e.y; });
+
+        function setSize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            init();
+        }
+        window.addEventListener('resize', setSize);
+
+        class Particle {
+            constructor(x, y, dx, dy) {
+                this.x = x; this.y = y; this.dx = dx; this.dy = dy;
+                this.size = Math.random() * 2.5 + 0.8;
+                this.baseX = this.x; this.baseY = this.y;
+                this.density = (Math.random() * 45) + 8;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(0, 242, 255, 0.8)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            update() {
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < mouse.radius) {
+                    let force = (mouse.radius - distance) / mouse.radius;
+                    this.x -= (dx / distance) * force * this.density;
+                    this.y -= (dy / distance) * force * this.density;
+                } else {
+                    if (this.x !== this.baseX) this.x -= (this.x - this.baseX) / 18;
+                    if (this.y !== this.baseY) this.y -= (this.y - this.baseY) / 18;
+                }
+                this.x += this.dx; this.y += this.dy;
+                if (this.x > canvas.width || this.x < 0) this.dx = -this.dx;
+                if (this.y > canvas.height || this.y < 0) this.dy = -this.dy;
+            }
+        }
+
+        function init() {
+            particlesArray = [];
+            let n = (canvas.height * canvas.width) / 5000; 
+            for (let i = 0; i < n; i++) {
+                let x = Math.random() * canvas.width, y = Math.random() * canvas.height;
+                let dx = (Math.random() - 0.5) * 1.5, dy = (Math.random() - 0.5) * 1.5;
+                particlesArray.push(new Particle(x, y, dx, dy));
+            }
+        }
+
+        function connect() {
+            for (let a = 0; a < particlesArray.length; a++) {
+                for (let b = a; b < particlesArray.length; b++) {
+                    let d = Math.sqrt((particlesArray[a].x - particlesArray[b].x)**2 + (particlesArray[a].y - particlesArray[b].y)**2);
+                    if (d < 55) {
+                        ctx.strokeStyle = `rgba(0, 242, 255, ${1 - d/55})`;
+                        ctx.lineWidth = 0.6;
+                        ctx.beginPath();
+                        ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
+                        ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particlesArray.forEach(p => { p.draw(); p.update(); });
+            connect();
+            requestAnimationFrame(animate);
+        }
+
+        setSize(); animate();
+
+        function updateCount() {
+            const t = document.getElementById('userList').value.trim();
+            document.getElementById('countDisplay').innerText = `COUNT: ${t ? t.split('\n').filter(u => u.trim() !== "").length : 0}`;
+        }
+        function clearAll() { document.getElementById('userList').value = ""; updateCount(); }
+        function openAllTabs() {
+            const t = document.getElementById('userList').value.trim();
+            if (!t) return;
+            t.split('\n').map(u => u.trim()).filter(u => u !== "").forEach((u, i) => setTimeout(() => window.open(`https://www.instagram.com/${u}/`, '_blank'), i * 400));
+        }
+    </script>
+</body>
+</html>
